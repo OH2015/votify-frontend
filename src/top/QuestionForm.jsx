@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { RoundButton, PlusIcon } from "./Top";
 import axios from "axios";
+import { API_URL } from "../config";
 
 const PopupOverlay = styled.div`
   position: fixed;
@@ -70,7 +71,7 @@ const Button = styled.button`
 
 // ボディコンポーネント
 const QuestionForm = ({ userId, handleClosePopup }) => {
-  const [formData, setFormData] = useState({
+  const [jsonData, setJsonData] = useState({
     title: "",
     explanation: "",
     choices: ["", ""],
@@ -79,34 +80,44 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
     user: userId,
   });
 
-  const handleChange = (event, param) => {
+  const onTitleChange = (event) => {
     let { name, value } = event.target;
-    if (name === "choice") {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        choices: prevFormData.choices.map((choice, index) =>
-          index === parseInt(event.target.dataset.index) ? value : choice
-        ),
-      }));
-    } else if (param === "plus") {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        choices: [...prevFormData.choices, ""],
-      }));
-    } else if (param === "minus") {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        choices: prevFormData.choices.slice(0, -1),
-      }));
-    } else {
-      setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-    }
+    setJsonData((prevjsonData) => ({ ...prevjsonData, [name]: value }));
   };
 
-  const handleSubmit = async () => {
+  const onExplanationChange = (event) => {
+    let { name, value } = event.target;
+    setJsonData((prevjsonData) => ({ ...prevjsonData, [name]: value }));
+  };
+
+  const onChoiceChange = (event) => {
+    let { name, value } = event.target;
+    setJsonData((prevjsonData) => ({
+      ...prevjsonData,
+      choices: prevjsonData.choices.map((choice, index) =>
+        index === parseInt(event.target.dataset.index) ? value : choice
+      ),
+    }));
+  };
+
+  const onPlusClicked = (event) => {
+    setJsonData((prevjsonData) => ({
+      ...prevjsonData,
+      choices: [...prevjsonData.choices, ""],
+    }));
+  };
+
+  const onMinusClicked = (event) => {
+    setJsonData((prevjsonData) => ({
+      ...prevjsonData,
+      choices: prevjsonData.choices.slice(0, -1),
+    }));
+  };
+
+  const handleSubmit = () => {
     // 入力値チェック
-    const filledChoices = formData.choices.filter((choice) => choice);
-    if (!formData.title) {
+    const filledChoices = jsonData.choices.filter((choice) => choice);
+    if (!jsonData.title) {
       window.alert("タイトルは空にできません");
       return;
     }
@@ -114,9 +125,16 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
       window.alert("選択肢は最低2つ必要です");
       return;
     }
-    formData.choices = filledChoices;
-    const res = await axios.post("/create_question/", formData);
-    window.location.href = "/";
+    jsonData.choices = filledChoices;
+    // API送信
+    axios
+      .post(API_URL + "/create_question/", jsonData)
+      .then((res) => {
+        window.location.href = "/";
+      })
+      .catch((e) => {
+        window.alert("投稿に失敗しました。");
+      });
   };
 
   return (
@@ -127,8 +145,8 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
             <label htmlFor="title">タイトル</label>
             <input
               required
-              value={formData.title}
-              onInput={handleChange}
+              value={jsonData.title}
+              onInput={onTitleChange}
               name="title"
               className="form-control"
               placeholder="タイトルを入力してください"
@@ -137,8 +155,8 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
           <div className="form-group">
             <label htmlFor="description">説明欄</label>
             <textarea
-              value={formData.explanation}
-              onInput={handleChange}
+              value={jsonData.explanation}
+              onInput={onExplanationChange}
               name="explanation"
               className="form-control"
               placeholder="説明を入力してください"
@@ -146,25 +164,25 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
           </div>
           <div className="form-group">
             <label htmlFor="options">選択肢</label>
-            {formData.choices.map((choice, idx) => (
+            {jsonData.choices.map((choice, idx) => (
               <input
                 required
                 name="choice"
                 data-index={idx}
                 key={idx}
                 value={choice}
-                onInput={handleChange}
+                onInput={onChoiceChange}
                 className="form-control"
                 placeholder="選択肢を入力してください"
               />
             ))}
           </div>
           <FlexBox>
-            <RoundButton onClick={(event) => handleChange(event, "plus")}>
+            <RoundButton onClick={(event) => onPlusClicked(event)}>
               <PlusIcon></PlusIcon>
             </RoundButton>
-            {formData.choices.length > 2 && (
-              <RoundButton onClick={(event) => handleChange(event, "minus")}>
+            {jsonData.choices.length > 2 && (
+              <RoundButton onClick={(event) => onMinusClicked(event)}>
                 <MinusIcon></MinusIcon>
               </RoundButton>
             )}
@@ -182,8 +200,6 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
             >
               キャンセル
             </Button>
-            {/* </div> */}
-            {/* </div> */}
           </FlexBox>
         </div>
       </PopupContent>

@@ -65,7 +65,7 @@ function Login() {
     const password = document.getElementById("password").value;
     axios
       .post(
-        `${API_URL}/login/`,
+        `${API_URL}/api/login/`,
         { email: email, password: password },
         { withCredentials: true }
       )
