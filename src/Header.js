@@ -73,10 +73,7 @@ function Header() {
             <div className="header-user-menu">
               <ul>
                 <li>
-                  <a href="#">{user.username}</a>
-                </li>
-                <li>
-                  <Link to="/account_info">個人情報</Link>
+                  <Link to="/account_info">{user.username}</Link>
                 </li>
                 <li>
                   <a onClick={logout}>ログアウト</a>

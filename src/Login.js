@@ -1,10 +1,16 @@
-import "./login.css";
 import axios from "axios";
 import { API_URL, GOOGLE_CLIENT_ID } from "./config";
+import styled from "styled-components";
+import { Link } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+
+const Container = styled.div`
+  max-width: 400px;
+  width: 100%;
+`;
 
 const loadScript = (src) =>
   new Promise((resolve, reject) => {
@@ -84,30 +90,32 @@ function Login() {
   };
 
   return (
-    <div id="container" className="container container-fluid">
-      <div className="row">
-        <label htmlFor="email">メールアドレス</label>
-        <input id="email" type="text" name="email" required />
-      </div>
-      <div className="row">
-        <label htmlFor="password">パスワード</label>
-        <input id="password" type="password" name="password" required />
-      </div>
-      <div className="row">
-        <input
-          type="submit"
-          className="btn"
-          value="ログイン"
-          onClick={doLogin}
-        />
-      </div>
-      <div className="row">
-        <div className="col-sm-12">
-          <a href="#">メールアドレスで新規登録</a>
+    <>
+      <Container className="border rounded mx-auto bg-white">
+        <div className="border-bottom p-3">
+          <p>メールアドレス:</p>
+          <input id="email" type="text" name="email" required className="w-100"/>
         </div>
-      </div>
-      <div ref={googleButton} id="google-ref"></div>
-    </div>
+        <div className="border-bottom p-3">
+          <p>パスワード:</p>
+          <input id="password" type="password" name="password" required className="w-100"/>
+        </div>
+        <div className="border-bottom p-3">
+          <input
+            type="submit"
+            className="btn w-100"
+            value="ログイン"
+            onClick={doLogin}
+          />
+        </div>
+      </Container>
+      <Container className="mx-auto mt-5">
+        <Link to="/account_register" className="btn w-100 mb-4" style={{ textDecoration: 'none' }}>
+          新規登録
+        </Link>
+        <div ref={googleButton} id="google-ref" className="w-100"></div>
+      </Container>
+    </>
   );
 }
 

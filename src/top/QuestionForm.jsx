@@ -128,7 +128,7 @@ const QuestionForm = ({ userId, handleClosePopup }) => {
     jsonData.choices = filledChoices;
     // API送信
     axios
-      .post(API_URL + "/create_question/", jsonData)
+      .post(API_URL + "/api/create_question/", jsonData)
       .then((res) => {
         window.location.href = "/";
       })

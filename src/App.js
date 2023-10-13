@@ -1,6 +1,8 @@
 import logo from "./logo.svg";
 import Header from "./Header";
 import Login from "./Login";
+import Register from "./Register";
+import RegisterComplete from "./RegisterComplete";
 import "./style.css";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import AccountInfo from "./AccountInfo";
@@ -18,7 +20,8 @@ function App() {
               <Route path="/" element={<Top />} />
               <Route path="/login" element={<Login />} />
               <Route path="/account_info" element={<AccountInfo />} />
-              <Route path="/update_content" element={<UpdateHistory />} />
+              <Route path="/account_register" element={<Register />} />
+              <Route path="/account_register_complete" element={<RegisterComplete />} />
             </Routes>
           </div>
         </div>
