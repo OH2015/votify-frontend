@@ -41,15 +41,15 @@ function AccountInfo() {
   return (
     <Container className="border rounded w-50 mx-auto">
       <div className="border-bottom p-3">
-        <p>ユーザ名:</p>
-        <p>{user.username}</p>
+        <label>ユーザ名:</label>
+        <p className="m-0">{user.username}</p>
       </div>
       <div className="border-bottom p-3">
         <label>メールアドレス:</label>
-        <p>{user.email}</p>
+        <p className="m-0">{user.email}</p>
       </div>
       <div className="p-3">
-        <p>プロフィール:</p>
+        <label>プロフィール:</label>
         {user.profile}
       </div>
     </Container>

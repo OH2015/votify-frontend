@@ -98,7 +98,7 @@ const Top = () => {
   const [votedList, setVotedList] = useState([]); // 投票済みのリスト
 
   const handleOpenPopup = () => {
-    if (userId === 0) {
+    if (!userId) {
       alert("投稿するにはログインが必要です");
       return;
     }
@@ -126,10 +126,10 @@ const Top = () => {
       // 投稿一覧取得
       const res = await axios.get(url, { withCredentials: true });
       // ログイン中のユーザのID取得
-      const res2 = await axios.get(`${API_URL}/api/get_user_id/`, { withCredentials: true });
+      const res2 = await axios.get(`${API_URL}/api/get_user_info/`, { withCredentials: true });
       // 投票済みのリスト取得
       const result = await axios.get(`${API_URL}/api/get_voted_list/`, { withCredentials: true });
-      setUserId(res2.data.user_id);
+      setUserId(res2.data.id);
       setVotedList(result.data);
       setPosts(res.data);
     };

@@ -12,22 +12,27 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function Register() {
-  const usernameRef = useRef(null);
-  const emailRef = useRef(null);
+function PasswordReset() {
   const passwordRef = useRef(null);
-
+  const [masking, setMasking] = useState(true);
+  const [message, setMessage] = useState("");
   const [completed, setCompleted] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const token = new URL(window.location.href).searchParams.get("token");
+
+    if (token == null) {
+      window.alert("URLにトークンが含まれていません。");
+      return;
+    }
+
     if (document.forms[0].reportValidity()) {
       axios
         .post(
-          API_URL + "/api/account_register/",
+          API_URL + "/api/password_reset/",
           {
-            username: usernameRef.current.value,
-            email: emailRef.current.value,
+            token: token,
             password: passwordRef.current.value,
           },
           {
@@ -35,10 +40,11 @@ function Register() {
           }
         )
         .then((response) => {
+          setMessage(response.data.message);
           if (response.data.result) {
             setCompleted(true);
           } else {
-            window.alert(response.data.message);
+            window.alert(message);
           }
         })
         .catch((error) => {
@@ -47,41 +53,30 @@ function Register() {
         });
     }
   };
+
+  const toggleMasking = () => {
+    setMasking(!masking);
+  };
+
   return (
     <Container className="border rounded mx-auto bg-white">
       {!completed ? (
         <form onSubmit={handleSubmit}>
           <div className="border-bottom p-3">
-            <h4 className="m-0">新規登録</h4>
+            <h4 className="m-0">新しいパスワードを設定</h4>
           </div>
           <div className="border-bottom p-3">
-            <label>ユーザ名:</label>
+            <label>新しいパスワード:</label>
+            <i
+              className={masking ? "far fa-eye-slash" : "far fa-eye"}
+              onClick={toggleMasking}
+            ></i>
             <input
-              ref={usernameRef}
-              maxLength="20"
-              required
-              className="w-100"
-            ></input>
-          </div>
-          <div className="border-bottom p-3">
-            <label>メールアドレス:</label>
-            <input
-              ref={emailRef}
-              type="email"
-              required
-              className="w-100"
-            ></input>
-          </div>
-          <div className="border-bottom p-3">
-            <label>パスワード:</label>
-            <input
+              type={masking ? "password" : "text"}
               ref={passwordRef}
-              type="password"
-              minLength="8"
-              maxLength="20"
               required
               className="w-100"
-            ></input>
+            />
           </div>
           <div className="border-bottom p-3">
             <button className="btn btn-primary">送信</button>
@@ -89,13 +84,13 @@ function Register() {
         </form>
       ) : (
         <div className="border-bottom p-3">
-          メールを送信しました。<br></br>
-          24時間以内にURLから登録を完了してください。<br></br>
-          <Link to="/">TOPへ戻る</Link>
+          {message}
+          <br></br>
+          <Link to="/login">ログイン画面へ</Link>
         </div>
       )}
     </Container>
   );
 }
 
-export default Register;
+export default PasswordReset;

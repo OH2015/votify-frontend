@@ -1,13 +1,13 @@
-import logo from "./logo.svg";
 import Header from "./Header";
 import Login from "./Login";
 import Register from "./Register";
 import RegisterComplete from "./RegisterComplete";
+import PasswordResetMail from "./PasswordResetMail";
+import PasswordReset from "./PasswordReset";
 import "./style.css";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import AccountInfo from "./AccountInfo";
 import Top from "./top/Top";
-import UpdateHistory from "./UpdateHistory";
 
 function App() {
   return (
@@ -22,6 +22,8 @@ function App() {
               <Route path="/account_info" element={<AccountInfo />} />
               <Route path="/account_register" element={<Register />} />
               <Route path="/account_register_complete" element={<RegisterComplete />} />
+              <Route path="/password_reset_mail" element={<PasswordResetMail />} />
+              <Route path="/password_reset" element={<PasswordReset />} />
             </Routes>
           </div>
         </div>

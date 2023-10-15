@@ -2,7 +2,8 @@ import axios from "axios";
 import { API_URL, GOOGLE_CLIENT_ID } from "./config";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { GoogleLogin } from "react-google-login";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -11,64 +12,43 @@ const Container = styled.div`
   max-width: 400px;
   width: 100%;
 `;
+const onSuccess = (response) => {
+  const email = response.profileObj.email;
+  const google_id = response.profileObj.googleId;
+  axios
+    .post(
+      `${API_URL}/api/google_login/`,
+      { email: email, google_id: google_id },
+      { withCredentials: true }
+    )
+    .then((response) => {
+      if (response.data.result) {
+        window.location.href = "/";
+      } else {
+        window.alert(response.data.message);
+      }
+    })
+    .catch((error) => {
+      window.alert("API通信中にエラーが発生しました。");
+      console.log("Error Google login", error);
+    });
+};
 
-const loadScript = (src) =>
-  new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve();
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = () => resolve();
-    script.onerror = (err) => reject(err);
-    document.body.appendChild(script);
-  });
+const onFailure = (response) => {
+  window.alert("ログインに失敗しました。");
+  console.log("failure" + response);
+};
 
 function Login() {
-  const googleButton = useRef(null);
-  useEffect(() => {
-    const src = "https://accounts.google.com/gsi/client";
-    const id = GOOGLE_CLIENT_ID;
-    loadScript(src)
-      .then(() => {
-        /*global google*/
-        google.accounts.id.initialize({
-          client_id: id,
-          callback: handleCredentialResponse,
-        });
-        google.accounts.id.renderButton(googleButton.current, {
-          theme: "outline",
-          size: "large",
-        });
-      })
-      .catch(console.error);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
-    return () => {
-      const scriptTag = document.querySelector(`script[src="${src}"]`);
-      if (scriptTag) document.body.removeChild(scriptTag);
-    };
-  }, []);
+  useEffect(() => {}, []);
 
-  function handleCredentialResponse(response) {
-    if (response.credential) {
-      axios
-        .post(
-          `${API_URL}/google/`,
-          { auth_token: response.credential },
-          { withCredentials: true }
-        )
-        .then((res) => {
-          document.getElementById("email").value = res.data.email;
-          document.getElementById("password").value = res.data.password;
-          doLogin();
-        })
-        .catch((err) => {
-          console.log("Error Google login", err);
-        });
-    }
-  }
-
-  const doLogin = () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  const doLogin = (event) => {
+    event.preventDefault();
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
     axios
       .post(
         `${API_URL}/api/login/`,
@@ -76,11 +56,10 @@ function Login() {
         { withCredentials: true }
       )
       .then((response) => {
-        // レスポンス処理
-        if (response.data == "Login Success") {
+        if (response.data.result) {
           window.location.href = "/";
         } else {
-          alert(response.data);
+          alert(response.data.message);
         }
       })
       .catch((error) => {
@@ -92,28 +71,48 @@ function Login() {
   return (
     <>
       <Container className="border rounded mx-auto bg-white">
-        <div className="border-bottom p-3">
-          <p>メールアドレス:</p>
-          <input id="email" type="text" name="email" required className="w-100"/>
-        </div>
-        <div className="border-bottom p-3">
-          <p>パスワード:</p>
-          <input id="password" type="password" name="password" required className="w-100"/>
-        </div>
-        <div className="border-bottom p-3">
-          <input
-            type="submit"
-            className="btn w-100"
-            value="ログイン"
-            onClick={doLogin}
-          />
-        </div>
+        <form onSubmit={doLogin}>
+          <div className="border-bottom p-3">
+            <label>メールアドレス:</label>
+            <input type="email" ref={emailRef} required className="w-100" />
+          </div>
+          <div className="border-bottom p-3">
+            <label>パスワード:</label>
+            <input
+              type="password"
+              ref={passwordRef}
+              required
+              className="w-100"
+            />
+          </div>
+          <div className="border-bottom p-3">
+            <button className="btn btn-primary w-100">ログイン</button>
+          </div>
+        </form>
+        <Link
+          to="/password_reset_mail"
+          className="btn btn-link w-100"
+          style={{ textDecoration: "none" }}
+        >
+          パスワードをお忘れですか？
+        </Link>
       </Container>
-      <Container className="mx-auto mt-5">
-        <Link to="/account_register" className="btn w-100 mb-4" style={{ textDecoration: 'none' }}>
+      <Container className="mx-auto mt-2 p-5">
+        <Link
+          to="/account_register"
+          className="btn btn-secondary w-100 mb-4"
+          style={{ textDecoration: "none" }}
+        >
           新規登録
         </Link>
-        <div ref={googleButton} id="google-ref" className="w-100"></div>
+        <GoogleLogin
+          clientId={GOOGLE_CLIENT_ID}
+          buttonText="Googleアカウントでログイン"
+          onSuccess={onSuccess}
+          onFailure={onFailure}
+          cookiePolicy="single_host_origin"
+          className="w-100"
+        />
       </Container>
     </>
   );

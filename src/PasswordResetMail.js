@@ -12,10 +12,8 @@ const Container = styled.div`
   width: 100%;
 `;
 
-function Register() {
-  const usernameRef = useRef(null);
+function PasswordResetMail() {
   const emailRef = useRef(null);
-  const passwordRef = useRef(null);
 
   const [completed, setCompleted] = useState(false);
 
@@ -24,11 +22,9 @@ function Register() {
     if (document.forms[0].reportValidity()) {
       axios
         .post(
-          API_URL + "/api/account_register/",
+          API_URL + "/api/password_reset_mail/",
           {
-            username: usernameRef.current.value,
             email: emailRef.current.value,
-            password: passwordRef.current.value,
           },
           {
             withCredentials: true,
@@ -47,21 +43,13 @@ function Register() {
         });
     }
   };
+
   return (
     <Container className="border rounded mx-auto bg-white">
       {!completed ? (
         <form onSubmit={handleSubmit}>
           <div className="border-bottom p-3">
-            <h4 className="m-0">新規登録</h4>
-          </div>
-          <div className="border-bottom p-3">
-            <label>ユーザ名:</label>
-            <input
-              ref={usernameRef}
-              maxLength="20"
-              required
-              className="w-100"
-            ></input>
+            <h4 className="m-0">パスワード再設定のメール発行</h4>
           </div>
           <div className="border-bottom p-3">
             <label>メールアドレス:</label>
@@ -73,24 +61,14 @@ function Register() {
             ></input>
           </div>
           <div className="border-bottom p-3">
-            <label>パスワード:</label>
-            <input
-              ref={passwordRef}
-              type="password"
-              minLength="8"
-              maxLength="20"
-              required
-              className="w-100"
-            ></input>
-          </div>
-          <div className="border-bottom p-3">
             <button className="btn btn-primary">送信</button>
           </div>
         </form>
       ) : (
         <div className="border-bottom p-3">
           メールを送信しました。<br></br>
-          24時間以内にURLから登録を完了してください。<br></br>
+          パスワードの再設定を完了するには24時間以内に添付したURLにアクセスしてください。
+          <br></br>
           <Link to="/">TOPへ戻る</Link>
         </div>
       )}
@@ -98,4 +76,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default PasswordResetMail;

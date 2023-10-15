@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { API_URL } from "./config";
+import { Link } from "react-router-dom";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -35,9 +36,13 @@ function RegisterComplete() {
   }, []);
 
   return (
-    <>
-      <p>{message}</p>
-    </>
+    <Container className="border rounded mx-auto bg-white">
+      <div className="border-bottom p-3">
+        {message}
+        <br></br>
+        <Link to="/login">ログイン画面へ</Link>
+      </div>
+    </Container>
   );
 }
 
