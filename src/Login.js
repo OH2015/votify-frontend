@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import React, { useEffect, useRef } from "react";
 import { GoogleLogin } from "react-google-login";
+import { gapi } from "gapi-script";
 
 axios.defaults.xsrfCookieName = "csrftoken";
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -43,7 +44,12 @@ function Login() {
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    function start() {
+      gapi.client.init({ clientId: GOOGLE_CLIENT_ID, scope: "" });
+    }
+    gapi.load("client:auth2", start);
+  }, []);
 
   const doLogin = (event) => {
     event.preventDefault();
